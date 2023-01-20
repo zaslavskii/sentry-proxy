@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PYTHONPATH=/home/plugins
+    command:
+      - --hostname
+      - 0.0.0.0
+      - --plugins
+      - sentry.SentryPlugin
+      - --ca-key-file
+      - /home/certs/ca-key.pem
+      - --ca-cert-file
+      - /home/certs/ca-cert.pem
+      - --ca-signing-key-file
+      - /home/certs/ca-signing-key.pem
+      - --ca-file
+      - /etc/ssl/certs/ca-certificates.crt
+    restart: always
+    ports:
+      - 8899:8899
+    volumes:
+      - ./plugins:/home/plugins
+      - ./certs:/home/certs
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
