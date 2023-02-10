@@ -8,8 +8,8 @@ SENTRY_PROXY_CA_CERT = "./certs/ca-cert.pem"
 init(
     SENTRY_DSN,
     http_proxy=SENTRY_PROXY,
-    environment="dev.chainstack.com",
+    environment="env",
     ca_certs=SENTRY_PROXY_CA_CERT,
 )
-if __name__ == '__main__':
+if __name__ == "__main__":
     division_by_zero = 1 / 0

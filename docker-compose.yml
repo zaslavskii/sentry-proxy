@@ -1,17 +1,30 @@
 version: '3.9'
 
 services:
+  redis:
+    image: redis
+
   proxy:
     build:
       context: .
       dockerfile: Dockerfile
+      target: prod
     environment:
-      - PYTHONPATH=/home/plugins
+      - SENTRY_PROXY_LOG_LEVEL=DEBUG
+      - SENTRY_PROXY_KEY_FORMAT='{environment}:{exception}'
+      - SENTRY_PROXY_TTL=3600
+      - SENTRY_PROXY_RATE=10
+      - SENTRY_PROXY_STORAGE=REDIS
+      - SENTRY_PROXY_REDIS_URL=redis://redis:6379/0
+      - SENTRY_PROXY_STRATEGY=COOLDOWN
+      - SENTRY_PROXY_REDIS_FLUSHDB_ON_START=yes
     command:
       - --hostname
       - 0.0.0.0
+      - --log-format
+      - "%(asctime)s [%(levelname)s] %(message)s"
       - --plugins
-      - sentry.SentryPlugin
+      - sentry_proxy.SentryPlugin
       - --ca-key-file
       - /home/certs/ca-key.pem
       - --ca-cert-file
@@ -21,13 +34,10 @@ services:
       - --ca-file
       - /etc/ssl/certs/ca-certificates.crt
     restart: always
+    depends_on:
+      - redis
     ports:
       - 8899:8899
     volumes:
       - ./plugins:/home/plugins
       - ./certs:/home/certs
-
-  redis:
-    image: redis
-    ports:
-      - 6379:6379

@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
